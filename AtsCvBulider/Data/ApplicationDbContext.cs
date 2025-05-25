@@ -1,0 +1,33 @@
+using Microsoft.EntityFrameworkCore;
+using AtsCvBuilder.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
+namespace AtsCvBuilder.Data;
+
+// Data/ApplicationDbContext.cs
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+
+    public DbSet<CV> CVs { get; set; }
+    public DbSet<CvSection> CvSections { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        //  ﬂÊÌ‰ «·⁄·«ﬁ« 
+        builder.Entity<CV>()
+            .HasOne<ApplicationUser>() // «·⁄·«ﬁ… „⁄ ApplicationUser
+            .WithMany() // ·« Õ«Ã… ≈·Ï  ÕœÌœ Œ«’Ì… «· ‰ﬁ· ›Ì ApplicationUser
+            .HasForeignKey(c => c.UserId) // «” Œœ«„ UserId ﬂ„› «Õ √Ã‰»Ì
+            .OnDelete(DeleteBehavior.Cascade); //  ÕœÌœ «·”·Êﬂ ⁄‰œ «·Õ–›
+
+        // «·⁄·«ﬁ… »Ì‰ CvSection Ê CV
+        builder.Entity<CvSection>()
+            .HasOne(s => s.CV) // «·⁄·«ﬁ… „⁄ CV
+            .WithMany(c => c.Sections) // ﬁ«∆„… «·√ﬁ”«„ «·„— »ÿ… »«·”Ì—… «·–« Ì…
+            .HasForeignKey(s => s.CVId) // «” Œœ«„ CVId ﬂ„› «Õ √Ã‰»Ì
+            .OnDelete(DeleteBehavior.Cascade); //  ÕœÌœ «·”·Êﬂ ⁄‰œ «·Õ–›
+    }
+}
